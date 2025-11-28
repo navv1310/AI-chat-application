@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farmassist AI - Your Smart Farming Companion</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/api/placeholder/1200/800') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+    
+    .chat-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      border-radius: 16px;
+      padding: 25px;
+      width: 100%;
+      max-width: 550px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+    
+    .chat-container:hover {
+      transform: translateY(-5px);
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e8f5e9;
+    }
+    
+    .logo {
+      width: 50px;
+      height: 50px;
+      background-color: #4caf50;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 15px;
+    }
+    
+    .logo-icon {
+      color: white;
+      font-size: 24px;
+    }
+    
+    h1 {
+      color: #2e7d32;
+      font-size: 24px;
+      flex-grow: 1;
+    }
+    
+    .chat-box {
+      height: 380px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      background-color: #f8f8f8;
+      scroll-behavior: smooth;
+    }
+    
+    .chat-message {
+      margin-bottom: 12px;
+      padding: 10px 15px;
+      border-radius: 18px;
+      max-width: 80%;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-message {
+      background-color: #e0f7fa;
+      color: #00695c;
+      align-self: flex-end;
+      margin-left: auto;
+      border-bottom-right-radius: 5px;
+    }
+    
+    .bot-message {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      align-self: flex-start;
+      margin-right: auto;
+      border-bottom-left-radius: 5px;
+    }
+    
+    .message-content {
+      word-wrap: break-word;
+    }
+    
+    .timestamp {
+      font-size: 10px;
+      color: #757575;
+      margin-top: 5px;
+      text-align: right;
+    }
+    
+    .chat-form {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .input-container {
+      position: relative;
+      flex: 1;
+    }
+    
+    .emoji-button {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #757575;
+      font-size: 16px;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 40px 12px 15px;
+      border-radius: 25px;
+      border: 2px solid #4caf50;
+      outline: none;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    input[type="text"]:focus {
+      border-color: #2e7d32;
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
+    
+    button[type="submit"] {
+      padding: 12px 24px;
+      border-radius: 25px;
+      border: none;
+      background-color: #4caf50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    button[type="submit"]:hover {
+      background-color: #2e7d32;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    button[type="submit"]:active {
+      transform: translateY(0);
+    }
+    
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+    
+    .suggestion-chip {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 8px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid #c8e6c9;
+    }
+    
+    .suggestion-chip:hover {
+      background-color: #c8e6c9;
+      transform: scale(1.05);
+    }
+    
+    .typing-indicator {
+      display: none;
+      padding: 10px 15px;
+      background-color: #f1f1f1;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+    
+    .typing-indicator span {
+      height: 8px;
+      width: 8px;
+      background-color: #4caf50;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+      animation: typing 1s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+      margin-right: 0;
+    }
+    
+    @keyframes typing {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(0); }
+    }
+    
+    .features-container {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    
+    .feature {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-icon {
+      font-size: 24px;
+      color: #4caf50;
+      margin-bottom: 10px;
+    }
+    
+    .feature-title {
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #2e7d32;
+    }
+    
+    .feature-description {
+      font-size: 12px;
+      color: #616161;
+    }
+    
+    @media (max-width: 600px) {
+      .chat-container {
+        max-width: 100%;
+        border-radius: 0;
+        height: 100vh;
+        padding: 15px;
+      }
+      
+      .chat-box {
+        height: calc(100vh - 180px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">🌱</div>
+      </div>
+      <h1>Farmassist AI</h1>
+    </div>
+    
+    <div id="chat-box" class="chat-box">
+      <div class="chat-message bot-message">
+        <div class="message-content">Hello! I'm Farmassist AI, your smart farming companion. How can I assist with your farming needs today?</div>
+        <div class="timestamp">Just now</div>
+      </div>
+      <div class="typing-indicator" id="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    
+    <form id="chat-form" class="chat-form">
+      <div class="input-container">
+        <input type="text" id="user-input" placeholder="Ask about crops, weather, or farming tips..." autocomplete="off" required />
+        <button type="button" class="emoji-button">😊</button>
+      </div>
+      <button type="submit">Send</button>
+    </form>
+    
+    <div class="suggestions">
+      <div class="suggestion-chip">Best crops for summer?</div>
+      <div class="suggestion-chip">How to prevent plant diseases?</div>
+      <div class="suggestion-chip">Water conservation tips</div>
+      <div class="suggestion-chip">Organic fertilizers</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('chat-form');
+      const userInput = document.getElementById('user-input');
+      const chatBox = document.getElementById('chat-box');
+      const typingIndicator = document.getElementById('typing-indicator');
+      const suggestionChips = document.querySelectorAll('.suggestion-chip');
+      
+      // Add event listeners to suggestion chips
+      suggestionChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          userInput.value = chip.textContent;
+          userInput.focus();
+        });
+      });
+      
+      function getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      
+      function appendMessage(sender, message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message');
+        
+        if (sender === 'user') {
+          messageDiv.classList.add('user-message');
+        } else {
+          messageDiv.classList.add('bot-message');
+        }
+        
+        messageDiv.innerHTML = `
+          <div class="message-content">${message}</div>
+          <div class="timestamp">${getCurrentTime()}</div>
+        `;
+        
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+      
+      function showTypingIndicator() {
+        typingIndicator.style.display = 'block';
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+      
+      function hideTypingIndicator() {
+        typingIndicator.style.display = 'none';
+      }
+      
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const message = userInput.value.trim();
+        if (!message) return;
+        
+        appendMessage('user', message);
+        userInput.value = '';
+        
+        showTypingIndicator();
+        
+        try {
+          // Simulate API delay
+          setTimeout(async () => {
+            try {
+              const res = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+              });
+              
+              const data = await res.json();
+              hideTypingIndicator();
+              appendMessage('bot', data.response);
+            } catch (err) {
+              hideTypingIndicator();
+              appendMessage('bot', 'Sorry, I\'m having trouble connecting to the server. Please try again later.');
+            }
+          }, 1000);
+        } catch (err) {
+          hideTypingIndicator();
+          appendMessage('bot', 'Error: Unable to reach server.');
+        }
+      });
+      
+      // Animation for the chat container
+      const chatContainer = document.querySelector('.chat-container');
+      chatContainer.style.opacity = '0';
+      chatContainer.style.transform = 'translateY(20px)';
+      
+      setTimeout(() => {
+        chatContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        chatContainer.style.opacity = '1';
+        chatContainer.style.transform = 'translateY(0)';
+      }, 100);
+      
+      // Emoji button functionality
+      const emojiButton = document.querySelector('.emoji-button');
+      const emojis = ['😊', '👨‍🌾', '🌱', '🌿', '🌾', '🍅', '🥕', '🥔', '🌽', '🐄', '🐓', '🚜'];
+      let currentEmojiIndex = 0;
+      
+      emojiButton.addEventListener('click', () => {
+        currentEmojiIndex = (currentEmojiIndex + 1) % emojis.length;
+        emojiButton.textContent = emojis[currentEmojiIndex];
+        userInput.value += emojis[currentEmojiIndex];
+        userInput.focus();
+      });
+      
+      // Placeholder background animation
+      const backgrounds = [
+        '/api/placeholder/1200/800',
+        '/api/placeholder/1200/800',
+        '/api/placeholder/1200/800'
+      ];
+      
+      let currentBgIndex = 0;
+      
+      setInterval(() => {
+        currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
+        document.body.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${backgrounds[currentBgIndex]})`;
+      }, 10000);
+    });
+  </script>
+</body>
+</html>
